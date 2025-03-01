@@ -1,7 +1,8 @@
 import React from 'react';
 import ChartComponent from './components/ChartComponent';
+import FileUpload from './components/FileUpload';
 
-const initialData = [
+const testData = [
     { time: '2018-12-22', value: 32.51 },
     { time: '2018-12-23', value: 31.11 },
     { time: '2018-12-24', value: 27.02 },
@@ -18,7 +19,9 @@ const App = () => {
     return (
         <div>
             <h1>Test Chart</h1>
-            <ChartComponent data={initialData} />
+            <ChartComponent data={testData} />
+            <h1>Upload CSV & View Chart</h1>
+            <FileUpload />
         </div>
     );
 };
