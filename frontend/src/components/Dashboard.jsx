@@ -146,6 +146,8 @@ const Dashboard = () => {
                   <h3 className="metric-label">Total Return</h3>
                   <p className="metric-value positive">+{modelMetrics.totalReturn}%</p>
                 </div>
+
+
               </div>
 
               {/* Performance chart */}

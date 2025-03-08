@@ -1,13 +1,19 @@
+from flask import Flask, jsonify
 import pandas as pd
-import json
 
-def convert_tearsheet_to_json(csvFileName):
-    df = pd.read_csv(csvFileName)
+app = Flask(__name__)
+
+
+@app.route("/api/data", methods=["GET"])
+def get_data():
+    df = pd.read_csv("backend\BullCallSpreadPLTR_2025-02-10_19-32_jQXFGf_tearsheet.csv")
+
+    df.dropna(how="all", inplace=True)
+
     json_data = df.to_dict(orient="records")
 
-    json_file = csvFileName[:-4] + ".json"
+    return jsonify(json_data)
 
-    with open(json_file, "w") as json_data:
-        json.dump(json_data, json_file, indent = 4)
-    
-    print("Finished creating File")
+
+if __name__ == "__main__":
+    app.run(debug=True)

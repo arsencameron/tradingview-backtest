@@ -1,0 +1,297 @@
+[
+    {
+        "Metric": "Risk-Free Rate",
+        "SPY": "4.19%",
+        "Strategy": "4.19%"
+    },
+    {
+        "Metric": "Time in Market",
+        "SPY": "69.0%",
+        "Strategy": "59.0%"
+    },
+    {
+        "Metric": "Total Return",
+        "SPY": "47%",
+        "Strategy": "3,784%"
+    },
+    {
+        "Metric": "CAGR% (Annual Return)",
+        "SPY": "23.42%",
+        "Strategy": "631.97%"
+    },
+    {
+        "Metric": "Sharpe",
+        "SPY": "1.44",
+        "Strategy": "1.84"
+    },
+    {
+        "Metric": "RoMaD",
+        "SPY": "2.28",
+        "Strategy": "14.14"
+    },
+    {
+        "Metric": "Corr to Benchmark",
+        "SPY": "1.0",
+        "Strategy": "0.06"
+    },
+    {
+        "Metric": "Prob. Sharpe Ratio",
+        "SPY": "90.48%",
+        "Strategy": "98.87%"
+    },
+    {
+        "Metric": "Smart Sharpe",
+        "SPY": "1.31",
+        "Strategy": "1.68"
+    },
+    {
+        "Metric": "Sortino",
+        "SPY": "2.12",
+        "Strategy": "5.47"
+    },
+    {
+        "Metric": "Smart Sortino",
+        "SPY": "1.93",
+        "Strategy": "4.97"
+    },
+    {
+        "Metric": "Sortino/\u221a2",
+        "SPY": "1.5",
+        "Strategy": "3.86"
+    },
+    {
+        "Metric": "Smart Sortino/\u221a2",
+        "SPY": "1.37",
+        "Strategy": "3.52"
+    },
+    {
+        "Metric": "Omega",
+        "SPY": "1.77",
+        "Strategy": "1.77"
+    },
+    {
+        "Metric": "Max Drawdown",
+        "SPY": "-10.29%",
+        "Strategy": "-44.68%"
+    },
+    {
+        "Metric": "Longest DD Days",
+        "SPY": "122",
+        "Strategy": "112"
+    },
+    {
+        "Metric": "Volatility (ann.)",
+        "SPY": "12.23%",
+        "Strategy": "150.53%"
+    },
+    {
+        "Metric": "R^2",
+        "SPY": "0.0",
+        "Strategy": "0.0"
+    },
+    {
+        "Metric": "Information Ratio",
+        "SPY": "0.09",
+        "Strategy": "0.09"
+    },
+    {
+        "Metric": "Calmar",
+        "SPY": "2.28",
+        "Strategy": "14.14"
+    },
+    {
+        "Metric": "Skew",
+        "SPY": "-0.25",
+        "Strategy": "9.51"
+    },
+    {
+        "Metric": "Kurtosis",
+        "SPY": "2.8",
+        "Strategy": "140.17"
+    },
+    {
+        "Metric": "Expected Daily%",
+        "SPY": "0.06%",
+        "Strategy": "0.55%"
+    },
+    {
+        "Metric": "Expected Monthly%",
+        "SPY": "1.7%",
+        "Strategy": "17.25%"
+    },
+    {
+        "Metric": "Expected Yearly%",
+        "SPY": "13.76%",
+        "Strategy": "238.65%"
+    },
+    {
+        "Metric": "Daily Value-at-Risk",
+        "SPY": "-0.99%",
+        "Strategy": "-12.19%"
+    },
+    {
+        "Metric": "Expected Shortfall (cVaR)",
+        "SPY": "-0.99%",
+        "Strategy": "-12.19%"
+    },
+    {
+        "Metric": "MTD",
+        "SPY": "0.0%",
+        "Strategy": "0.0%"
+    },
+    {
+        "Metric": "3M",
+        "SPY": "6.4%",
+        "Strategy": "57.1%"
+    },
+    {
+        "Metric": "6M",
+        "SPY": "9.85%",
+        "Strategy": "135.54%"
+    },
+    {
+        "Metric": "YTD",
+        "SPY": "3.24%",
+        "Strategy": "-2.74%"
+    },
+    {
+        "Metric": "1Y",
+        "SPY": "25.3%",
+        "Strategy": "297.62%"
+    },
+    {
+        "Metric": "3Y (ann.)",
+        "SPY": "23.42%",
+        "Strategy": "631.97%"
+    },
+    {
+        "Metric": "5Y (ann.)",
+        "SPY": "23.42%",
+        "Strategy": "631.97%"
+    },
+    {
+        "Metric": "10Y (ann.)",
+        "SPY": "23.42%",
+        "Strategy": "631.97%"
+    },
+    {
+        "Metric": "All-time (ann.)",
+        "SPY": "23.42%",
+        "Strategy": "631.97%"
+    },
+    {
+        "Metric": "Best Day",
+        "SPY": "2.49%",
+        "Strategy": "132.36%"
+    },
+    {
+        "Metric": "Worst Day",
+        "SPY": "-2.98%",
+        "Strategy": "-23.32%"
+    },
+    {
+        "Metric": "Best Month",
+        "SPY": "9.13%",
+        "Strategy": "211.11%"
+    },
+    {
+        "Metric": "Worst Month",
+        "SPY": "-5.08%",
+        "Strategy": "-18.36%"
+    },
+    {
+        "Metric": "Best Year",
+        "SPY": "23.3%",
+        "Strategy": "927.89%"
+    },
+    {
+        "Metric": "Worst Year",
+        "SPY": "3.24%",
+        "Strategy": "-2.74%"
+    },
+    {
+        "Metric": "Avg. Drawdown",
+        "SPY": "-1.49%",
+        "Strategy": "-10.75%"
+    },
+    {
+        "Metric": "Avg. Drawdown Days",
+        "SPY": "11",
+        "Strategy": "16"
+    },
+    {
+        "Metric": "Recovery Factor",
+        "SPY": "3.89",
+        "Strategy": "11.59"
+    },
+    {
+        "Metric": "Ulcer Index",
+        "SPY": "0.03",
+        "Strategy": "0.15"
+    },
+    {
+        "Metric": "Serenity Index",
+        "SPY": "1.8",
+        "Strategy": "9.73"
+    },
+    {
+        "Metric": "Avg. Up Month",
+        "SPY": "4.32%",
+        "Strategy": "69.68%"
+    },
+    {
+        "Metric": "Avg. Down Month",
+        "SPY": "-3.76%",
+        "Strategy": "-8.51%"
+    },
+    {
+        "Metric": "Win Days",
+        "SPY": "389.67",
+        "Strategy": "317.95"
+    },
+    {
+        "Metric": "Loss Days",
+        "SPY": "282.33",
+        "Strategy": "354.05"
+    },
+    {
+        "Metric": "Win Days%",
+        "SPY": "57.99%",
+        "Strategy": "47.31%"
+    },
+    {
+        "Metric": "Win Month%",
+        "SPY": "72.73%",
+        "Strategy": "52.38%"
+    },
+    {
+        "Metric": "Win Quarter%",
+        "SPY": "87.5%",
+        "Strategy": "87.5%"
+    },
+    {
+        "Metric": "Win Year%",
+        "SPY": "100.0%",
+        "Strategy": "66.67%"
+    },
+    {
+        "Metric": "Beta",
+        "SPY": "-",
+        "Strategy": "0.69"
+    },
+    {
+        "Metric": "Alpha",
+        "SPY": "-",
+        "Strategy": "2.66"
+    },
+    {
+        "Metric": "Correlation",
+        "SPY": "-",
+        "Strategy": "5.61%"
+    },
+    {
+        "Metric": "Treynor Ratio",
+        "SPY": "-",
+        "Strategy": "5470.61%"
+    }
+]
