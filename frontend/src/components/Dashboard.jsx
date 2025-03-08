@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import './Dashboard.css';
-import { Layers, BarChart2, Settings } from 'lucide-react';
-import ChartComponent from './ChartComponent';
+import { BarChart2, Layers, Settings } from 'lucide-react';
 import Papa from 'papaparse';
+import React, { useState } from 'react';
+import ChartComponent from './ChartComponent';
+import './Dashboard.css';
 
 // Sample data 
 const testData = [
@@ -40,7 +40,9 @@ const Dashboard = () => {
     sharpeRatio: 2.14,
     sortino: 2.68,
     maxDrawdown: -12.4,
-    totalReturn: 24.8
+    totalReturn: 24.8,
+    annualReturn: 631.97,
+    longestDDDays: 112
   });
 
   {/* File Parsing */}
@@ -146,6 +148,7 @@ const Dashboard = () => {
                   <h3 className="metric-label">Total Return</h3>
                   <p className="metric-value positive">+{modelMetrics.totalReturn}%</p>
                 </div>
+
 
 
               </div>
@@ -383,6 +386,15 @@ const Dashboard = () => {
                     <h4 className="metric-label">Max Drawdown</h4>
                     <p className="metric-value negative">{modelMetrics.maxDrawdown}%</p>
                   </div>
+                  <div className="metric-card">
+                    <h4 className="metric-label">Annual Return</h4>
+                    <p className="metric-value positive">{modelMetrics.annualReturn}%</p>
+                  </div>
+                  <div className="metric-card">
+                    <h4 className="metric-label">Longest DD Days</h4>
+                    <p className="metric-value positive">{modelMetrics.longestDDDays}%</p>
+                  </div>
+                  
                 </div>
               </div>
             </div>
