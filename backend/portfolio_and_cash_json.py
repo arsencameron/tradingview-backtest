@@ -1,8 +1,5 @@
 import csv
 import json
-from flask import Flask
-
-app = Flask(__name__)
 
 def convert_csv_to_json(file_path):
   portfolio_data = []
@@ -18,6 +15,3 @@ def convert_csv_to_json(file_path):
   cash_json = json.dumps(cash_data, indent=2)
 
   return portfolio_json, cash_json
-
-if __name__ == "__main__":
-  app.run(debug=True)
