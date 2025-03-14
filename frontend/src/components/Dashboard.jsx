@@ -1,6 +1,6 @@
-import { BarChart2, Layers, Settings } from 'lucide-react';
+import { BarChart2, Layers, Settings, TrendingUp } from 'lucide-react';
 import Papa from 'papaparse';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ChartComponent from './ChartComponent';
 import './Dashboard.css';
 
@@ -47,6 +47,27 @@ const Dashboard = () => {
 
   {/* File Parsing */}
   const [csvData, setCsvData] = useState(null);
+
+  {/* Tearsheet Data Display */}
+  const [tearsheetData, setTearsheetData]  = useState([]);
+
+  useEffect(() => {
+    fetch('/tearsheet_data.json')  
+      .then((response) => response.json())
+      .then((tearsheetData) => {
+        setTearsheetData(tearsheetData);  
+        console.log(tearsheetData);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
+  const getClassByValue = (value) => {
+    const numericValue = parseFloat(value.replace(',', '').replace('%', ''));
+    
+    return numericValue >= 0 ? 'positive' : 'negative';
+  };
 
   const handleCsvFileUpload = (event) => {
     const file = event.target.files[0];
@@ -116,6 +137,17 @@ const Dashboard = () => {
                   <span className="btn-text">Settings</span>
                 </button>
               </li>
+              <li>
+                <button
+                  className={`sidebar-btn ${activeTab === 'settings' ? 'active' : ''}`}
+                  onClick={() => window.open("/BullCallSpreadPLTR_2025-02-10_19-32_jQXFGf_tearsheet.html", "_blank")}
+                  >
+                  <TrendingUp className="icon" />
+                  <span className="btn-text">Tearsheet</span>
+                </button>
+              </li>
+              
+             
             </ul>
           </nav>
         </aside>
@@ -128,28 +160,19 @@ const Dashboard = () => {
 
               {/* Model metrics */}
               <div className="metrics-grid">
-                <div className="metric-card">
-                  <h3 className="metric-label">Accuracy</h3>
-                  <p className="metric-value">{modelMetrics.accuracy}%</p>
-                </div>
-                <div className="metric-card">
-                  <h3 className="metric-label">Sharpe Ratio</h3>
-                  <p className="metric-value">{modelMetrics.sharpeRatio}</p>
-                </div>
-                <div className="metric-card">
-                  <h3 className="metric-label">Sortino Ratio</h3>
-                  <p className="metric-value">{modelMetrics.sortino}</p>
-                </div>
-                <div className="metric-card">
-                  <h3 className="metric-label">Max Drawdown</h3>
-                  <p className="metric-value negative">{modelMetrics.maxDrawdown}%</p>
-                </div>
-                <div className="metric-card">
-                  <h3 className="metric-label">Total Return</h3>
-                  <p className="metric-value positive">+{modelMetrics.totalReturn}%</p>
-                </div>
-
-
+              {tearsheetData.map((metric, i) => (
+                  <div key={i} className="metric-card">
+                    <h3 className="metric-label">{metric.Metric}</h3>
+                    <div className="metric-value">
+                      <p className={`spy-value ${getClassByValue(metric.SPY)}`}>
+                        SPY: {metric.SPY}
+                      </p>
+                      <p className={`strategy-value ${getClassByValue(metric.Strategy)}`}>
+                        Strategy: {metric.Strategy}
+                      </p>
+                    </div>
+                  </div>
+                ))}
 
               </div>
 

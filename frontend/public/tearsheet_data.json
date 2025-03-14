@@ -1,0 +1,27 @@
+[
+    {
+        "Metric": "Total Return",
+        "SPY": "47%",
+        "Strategy": "3,784%"
+    },
+    {
+        "Metric": "CAGR% (Annual Return)",
+        "SPY": "23.42%",
+        "Strategy": "631.97%"
+    },
+    {
+        "Metric": "Sharpe",
+        "SPY": "1.44",
+        "Strategy": "1.84"
+    },
+    {
+        "Metric": "Sortino",
+        "SPY": "2.12",
+        "Strategy": "5.47"
+    },
+    {
+        "Metric": "Max Drawdown",
+        "SPY": "-10.29%",
+        "Strategy": "-44.68%"
+    }
+]
