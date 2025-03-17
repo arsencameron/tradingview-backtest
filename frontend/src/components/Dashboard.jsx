@@ -4,34 +4,6 @@ import React, { useEffect, useState } from 'react';
 import ChartComponent from './ChartComponent';
 import './Dashboard.css';
 
-// Sample data 
-const testData = [
-  { time: '2018-12-22', value: 32.51 },
-  { time: '2018-12-23', value: 31.11 },
-  { time: '2018-12-24', value: 27.02 },
-  { time: '2018-12-25', value: 27.32 },
-  { time: '2018-12-26', value: 25.17 },
-  { time: '2018-12-27', value: 28.89 },
-  { time: '2018-12-28', value: 25.46 },
-  { time: '2018-12-29', value: 23.92 },
-  { time: '2018-12-30', value: 22.68 },
-  { time: '2018-12-31', value: 22.67 },
-];
-
-const samplePredictions = [
-  { symbol: 'AAPL', predictedMove: 2.3, confidence: 85, signal: 'buy' },
-  { symbol: 'MSFT', predictedMove: -0.8, confidence: 72, signal: 'hold' },
-  { symbol: 'GOOGL', predictedMove: 1.5, confidence: 68, signal: 'buy' },
-  { symbol: 'AMZN', predictedMove: 3.2, confidence: 92, signal: 'buy' },
-  { symbol: 'NVDA', predictedMove: -1.2, confidence: 75, signal: 'sell' },
-];
-
-const samplePositions = [
-  { symbol: 'AAPL', shares: 100, entryPrice: 165.42, currentPrice: 178.72, pl: 1330.0, plPercent: 8.03 },
-  { symbol: 'MSFT', shares: 50, entryPrice: 310.15, currentPrice: 328.79, pl: 932.0, plPercent: 6.01 },
-  { symbol: 'AMZN', shares: 75, entryPrice: 160.3, currentPrice: 178.75, pl: 1383.75, plPercent: 11.51 },
-];
-
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [riskLevel, setRiskLevel] = useState('medium');
@@ -72,27 +44,32 @@ const Dashboard = () => {
   const handleCsvFileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      // Use PapaParse to parse the CSV file
       Papa.parse(file, {
         complete: (result) => {
-          // Map to JSON format (customize this according to your CSV structure)
-          const jsonData = result.data.map((row) => ({
-            // Convert time to only the date part (YYYY-MM-DD)
-            time: new Date(row['time']).getTime() / 1000,  // Convert time to Unix timestamp
-            value: parseFloat(row['price'] || 0),  // Use price field (or 0 if empty)
-          }));
+          const valueData = [];
+          const cashData = [];
   
-          // Sort the data by time in ascending order
-          jsonData.sort((a, b) => a.time - b.time);
+          result.data.forEach((row) => {
+            const timestamp = new Date(row['datetime']).getTime() / 1000; // Convert to Unix timestamp
+            
+            if (!isNaN(timestamp)) {
+              valueData.push({ time: timestamp, value: parseFloat(row['portfolio_value'] || 0) });
+              cashData.push({ time: timestamp, value: parseFloat(row['cash'] || 0) });
+            }
+          });
   
-          // Set the parsed and sorted data
-          setCsvData(jsonData); 
+          // Sort both datasets by time
+          valueData.sort((a, b) => a.time - b.time);
+          cashData.sort((a, b) => a.time - b.time);
+  
+          setCsvData({ valueData, cashData });
         },
-        header: true, // Treat the first row as headers
-        skipEmptyLines: true, // Skip empty lines in the CSV
+        header: true,
+        skipEmptyLines: true,
       });
     }
   };
+  
 
   return (
     
@@ -179,77 +156,11 @@ const Dashboard = () => {
               {/* Performance chart */}
               <div>        
                 {/* File input to upload CSV */}
+                <h3>Price over Time</h3>
                 <input type="file" accept=".csv" onChange={handleCsvFileUpload} />
                 
                 {/* Pass csvData to ChartComponent*/}
-                {csvData && <ChartComponent data={csvData} />}
-                {/* {csvData && <pre>{JSON.stringify(csvData, null, 2)}</pre>} */}
-              </div>
-              
-              <ChartComponent data={testData} />
-
-              {/* Latest predictions */}
-              <div className="card table-card">
-                <div className="table-header">
-                  <h3 className="table-title">Predictions</h3>
-                </div>
-                <div className="table-scroll">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>Symbol</th>
-                        <th>Predicted Move</th>
-                        <th>Confidence</th>
-                        <th>Signal</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {samplePredictions.slice(0, 3).map((prediction, i) => (
-                        <tr key={i}>
-                          <td>{prediction.symbol}</td>
-                          <td
-                            className={
-                              prediction.predictedMove > 0 ? 'positive' : 'negative'
-                            }
-                          >
-                            {prediction.predictedMove > 0 ? '+' : ''}
-                            {prediction.predictedMove}%
-                          </td>
-                          <td>
-                            <div className="progress-bg">
-                              <div
-                                className={
-                                  prediction.confidence > 80
-                                    ? 'progress-bar high'
-                                    : prediction.confidence > 60
-                                    ? 'progress-bar medium'
-                                    : 'progress-bar low'
-                                }
-                                style={{ width: `${prediction.confidence}%` }}
-                              ></div>
-                            </div>
-                            <span className="confidence-text">
-                              {prediction.confidence}%
-                            </span>
-                          </td>
-                          <td>
-                            <span
-                              className={`signal-badge ${
-                                prediction.signal === 'buy'
-                                  ? 'buy'
-                                  : prediction.signal === 'sell'
-                                  ? 'sell'
-                                  : 'hold'
-                              }`}
-                            >
-                              {prediction.signal.toUpperCase()}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                {csvData && <ChartComponent valueData={csvData.valueData} cashData={csvData.cashData} />}
               </div>
             </div>
           )}
