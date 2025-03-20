@@ -3,6 +3,8 @@ import Papa from 'papaparse';
 import React, { useEffect, useState } from 'react';
 import ChartComponent from './ChartComponent';
 import './Dashboard.css';
+import Chart from './Chart';  
+import { TVChartContainer } from './TVChartContainer';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -24,6 +26,7 @@ const Dashboard = () => {
   const [tearsheetData, setTearsheetData]  = useState([]);
 
   useEffect(() => {
+    handleCsvFileRead();
     fetch('/tearsheet_data.json')  
       .then((response) => response.json())
       .then((tearsheetData) => {
@@ -41,35 +44,41 @@ const Dashboard = () => {
     return numericValue >= 0 ? 'positive' : 'negative';
   };
 
-  const handleCsvFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      Papa.parse(file, {
-        complete: (result) => {
-          const valueData = [];
-          const cashData = [];
+  const handleCsvFileRead = () => {
+    const filePath = '../../data/BullCallSpreadPLTR_2025-02-10_19-32_jQXFGf_stats.csv'; 
   
-          result.data.forEach((row) => {
-            const timestamp = new Date(row['datetime']).getTime() / 1000; // Convert to Unix timestamp
-            
-            if (!isNaN(timestamp)) {
-              valueData.push({ time: timestamp, value: parseFloat(row['portfolio_value'] || 0) });
-              cashData.push({ time: timestamp, value: parseFloat(row['cash'] || 0) });
-            }
-          });
+    fetch(filePath)
+      .then((response) => response.text())
+      .then((data) => {
+        Papa.parse(data, {
+          complete: (result) => {
+            const valueData = [];
+            const cashData = [];
   
-          // Sort both datasets by time
-          valueData.sort((a, b) => a.time - b.time);
-          cashData.sort((a, b) => a.time - b.time);
+            result.data.forEach((row) => {
+              const timestamp = new Date(row['datetime']).getTime() / 1000; // Convert to Unix timestamp
   
-          setCsvData({ valueData, cashData });
-        },
-        header: true,
-        skipEmptyLines: true,
+              if (!isNaN(timestamp)) {
+                valueData.push({ time: timestamp, value: parseFloat(row['portfolio_value'] || 0) });
+                cashData.push({ time: timestamp, value: parseFloat(row['cash'] || 0) });
+              }
+            });
+  
+            // Sort both datasets by time
+            valueData.sort((a, b) => a.time - b.time);
+            cashData.sort((a, b) => a.time - b.time);
+  
+            // Set the CSV data (assuming you have a state setter for this)
+            setCsvData({ valueData, cashData });
+          },
+          header: true,
+          skipEmptyLines: true,
+        });
+      })
+      .catch((error) => {
+        console.error('Error fetching the file:', error);
       });
-    }
   };
-  
 
   return (
     
@@ -155,12 +164,11 @@ const Dashboard = () => {
 
               {/* Performance chart */}
               <div>        
-                {/* File input to upload CSV */}
-                <h3>Price over Time</h3>
-                <input type="file" accept=".csv" onChange={handleCsvFileUpload} />
-                
-                {/* Pass csvData to ChartComponent*/}
-                {csvData && <ChartComponent valueData={csvData.valueData} cashData={csvData.cashData} />}
+                {/* {csvData && <ChartComponent valueData={csvData.valueData} cashData={csvData.cashData} />} */}
+                {/* {csvData && <Chart valueData={csvData.valueData} cashData={csvData.cashData} />} */}
+                {csvData && csvData.valueData && csvData.cashData && (
+                  <TVChartContainer valueData={csvData.valueData} cashData={csvData.cashData} />
+                )}
               </div>
             </div>
           )}
