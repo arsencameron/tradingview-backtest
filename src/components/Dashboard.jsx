@@ -3,7 +3,6 @@ import Papa from 'papaparse';
 import React, { useEffect, useState } from 'react';
 import ChartComponent from './ChartComponent';
 import './Dashboard.css';
-import Chart from './Chart';  
 import { TVChartContainer } from './TVChartContainer';
 
 const Dashboard = () => {
@@ -21,6 +20,9 @@ const Dashboard = () => {
 
   {/* File Parsing */}
   const [csvData, setCsvData] = useState(null);
+  const [totalReturn, setTotalReturn] = useState(0);
+  const [annualReturn, setAnnualReturn] = useState(0);
+
 
   {/* Tearsheet Data Display */}
   const [tearsheetData, setTearsheetData]  = useState([]);
@@ -39,9 +41,22 @@ const Dashboard = () => {
   }, []);
 
   const getClassByValue = (value) => {
-    const numericValue = parseFloat(value.replace(',', '').replace('%', ''));
-    
+    // Ensure the value is a string and handle cases where it's a number or undefined
+    const stringValue = value ? value.toString() : '';
+  
+    // Remove commas and percentage sign if present
+    const numericValue = parseFloat(stringValue.replace(',', '').replace('%', ''));
+  
+    // Return the appropriate class based on the numeric value
     return numericValue >= 0 ? 'positive' : 'negative';
+  };
+  
+  const calculateCAGR = (initialValue, finalValue, initialTimestamp, finalTimestamp) => {
+    const years = (finalTimestamp - initialTimestamp) / (365 * 24 * 60 * 60 * 1000);
+  
+    const cagr = ((finalValue / initialValue) ** (1 / years) - 1) * 100;
+  
+    return cagr.toFixed(2);  // Return as percentage with 2 decimal places
   };
 
   const handleCsvFileRead = () => {
@@ -54,22 +69,83 @@ const Dashboard = () => {
           complete: (result) => {
             const valueData = [];
             const cashData = [];
-  
-            result.data.forEach((row) => {
+            
+            // Initialize initial and final values
+            let initialValue = null;
+            let finalValue = null;
+            let initialTimestamp = null;
+            let finalTimestamp = null;
+    
+            result.data.forEach((row, index) => {
               const timestamp = new Date(row['datetime']).getTime() / 1000; // Convert to Unix timestamp
+              const portfolioValue = parseFloat(row['portfolio_value']);
   
-              if (!isNaN(timestamp)) {
-                valueData.push({ time: timestamp, value: parseFloat(row['portfolio_value'] || 0) });
+              if (!isNaN(portfolioValue)) {
+                // Set initial value (first entry)
+                if (index === 0) {
+                  initialValue = portfolioValue;
+                  initialTimestamp = timestamp;
+                }
+  
+                // Update final value (last entry)
+                finalValue = portfolioValue;
+                finalTimestamp = timestamp;
+
+                // You can still store the data for further usage like graphs
+                valueData.push({ time: timestamp, value: portfolioValue });
                 cashData.push({ time: timestamp, value: parseFloat(row['cash'] || 0) });
               }
             });
   
-            // Sort both datasets by time
+            if (initialValue !== null && finalValue !== null) {
+              const rawTotalReturn = (((finalValue - initialValue) / initialValue) * 100).toFixed(0);
+              // Format with comma and percentage sign
+              const formattedTotalReturn = new Intl.NumberFormat().format(rawTotalReturn) + '%';
+              setTotalReturn(formattedTotalReturn); // Store formatted value
+
+              const initialDate = new Date(initialTimestamp*1000);  // Convert initial timestamp to ISO format and then parse
+              const finalDate = new Date(finalTimestamp*1000);      // Convert final timestamp to ISO format and then parse
+
+              console.log("Initial Date:", initialDate);
+              console.log("Final Date:", finalDate);
+
+              // Check if the timestamps are valid dates
+              if (isNaN(initialDate) || isNaN(finalDate)) {
+                console.error('Invalid date values');
+                return;
+              }
+
+              // Ensure that the final date is after the initial date
+              if (initialDate >= finalDate) {
+                console.error('Final date must be after initial date');
+                return;
+              }
+
+              // Calculate the difference in milliseconds
+              const timeDifference = finalDate - initialDate;
+
+              // Convert the time difference from milliseconds to years
+              const years = timeDifference / (1000 * 60 * 60 * 24 * 365.25);  // 365.25 to account for leap years
+
+              // If the time difference is too short (less than a year), return 0 years to avoid infinite results
+              if (years <= 0) {
+                console.error('Time period is too short');
+                return;
+              }
+
+              // Calculate the CAGR (if years > 0)
+              const rawCAGR = ((Math.pow(finalValue / initialValue, 1 / years) - 1) * 100).toFixed(2);  // CAGR formula
+              const formattedCAGR = new Intl.NumberFormat().format(rawCAGR) + '%';  // Format with comma and percentage sign
+              setAnnualReturn(formattedCAGR); // Store formatted CAGR value
+            }
+  
+            // Sort the data by time
             valueData.sort((a, b) => a.time - b.time);
             cashData.sort((a, b) => a.time - b.time);
   
-            // Set the CSV data (assuming you have a state setter for this)
+            // Set the CSV data
             setCsvData({ valueData, cashData });
+            console.log('Total Return:', totalReturn);
           },
           header: true,
           skipEmptyLines: true,
@@ -79,7 +155,7 @@ const Dashboard = () => {
         console.error('Error fetching the file:', error);
       });
   };
-
+  
   return (
     
     <div className="dashboard-container">
@@ -146,19 +222,24 @@ const Dashboard = () => {
 
               {/* Model metrics */}
               <div className="metrics-grid">
-              {tearsheetData.map((metric, i) => (
-                  <div key={i} className="metric-card">
-                    <h3 className="metric-label">{metric.Metric}</h3>
-                    <div className="metric-value">
-                      <p className={`spy-value ${getClassByValue(metric.SPY)}`}>
-                        SPY: {metric.SPY}
-                      </p>
-                      <p className={`strategy-value ${getClassByValue(metric.Strategy)}`}>
-                        Strategy: {metric.Strategy}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+              <div className="metric-card">
+                <h3 className="metric-label">Total Return:</h3>
+                <div className="metric-value">
+                  <p className={`total-return-value ${getClassByValue(totalReturn)}`}>
+                    Strategy: {totalReturn}
+                  </p>
+                </div>
+              </div>
+
+              <div className="metric-card">
+                <h3 className="metric-label">CAGR Annual Return:</h3>
+                <div className="metric-value">
+                  <p className={`annual-return ${getClassByValue(totalReturn)}`}>
+                    Strategy: {annualReturn}
+                  </p>
+                </div>
+              </div>
+
 
               </div>
 
