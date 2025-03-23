@@ -157,7 +157,6 @@ const Dashboard = () => {
   };
   
   return (
-    
     <div className="dashboard-container">
       {/* Header */}
       <header className="dashboard-header">
@@ -247,8 +246,11 @@ const Dashboard = () => {
               <div>        
                 {/* {csvData && <ChartComponent valueData={csvData.valueData} cashData={csvData.cashData} />} */}
                 {/* {csvData && <Chart valueData={csvData.valueData} cashData={csvData.cashData} />} */}
-                {csvData && csvData.valueData && csvData.cashData && (
+                {/* {csvData && csvData.valueData && csvData.cashData && (
                   <TVChartContainer valueData={csvData.valueData} cashData={csvData.cashData} />
+                )} */}
+                {csvData && csvData.valueData && csvData.cashData && (
+                  <Chart valueData={csvData.valueData} cashData={csvData.cashData} />
                 )}
               </div>
             </div>
