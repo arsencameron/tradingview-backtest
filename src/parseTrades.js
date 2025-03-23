@@ -33,3 +33,23 @@ export const parseTradesCSV = (csvText) => {
     });
   });
 };
+
+
+/*
+should return an array like this:
+[
+  {
+    time: 1707300075,
+    price: 68.319,
+    side: "buy",
+    symbol: "NVDA"
+  },
+  {
+    time: 1707300080,
+    price: 144.76,
+    side: "sell",
+    symbol: "GOOGL"
+  },
+  // ...
+]
+*/
