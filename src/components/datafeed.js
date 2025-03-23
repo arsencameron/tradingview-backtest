@@ -5,7 +5,7 @@ export class Datafeed {
       CASH: cashData,             // array of { time, value }
     };
     
-    this.supportedResolutions = ['1', '15', '60', '1D'];
+    this.supportedResolutions = ['1D'];
   }
 
   onReady(callback) {

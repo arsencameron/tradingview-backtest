@@ -11,6 +11,7 @@ function Chart({ valueData, cashData }) {
     if (!chartContainerRef.current) {
       return;
     }
+    
 
     // 1) Create a single datafeed instance for both sets of data
     const myDataFeed = new Datafeed(valueData, cashData);
@@ -25,17 +26,16 @@ function Chart({ valueData, cashData }) {
       locale: 'en',
       disabled_features: [
         'use_localstorage_for_settings',
-        'header_symbol_search',
-        'header_compare'
       ],
       enabled_features: [
-        'study_templates',
-        'hide_left_toolbar_by_default'
+        'study_templates'
       ],
       overrides: {
-        "mainSeriesProperties.style": 1, // 1 = line chart
-        "mainSeriesProperties.lineStyle.color": "#2196F3", // Blue for main series
-        "mainSeriesProperties.lineStyle.linewidth": 2
+        "mainSeriesProperties.style": 2, // 2 = line chart
+        "mainSeriesProperties.lineStyle.linewidth": 2,
+        "mainSeriesProperties.lineStyle.color": "#2962FF",
+        "mainSeriesProperties.priceAxisProperties.percentage": false,
+        "mainSeriesProperties.lineStyle.linestyle": 0
       },
       autosize: true,
       theme: 'Dark' // or 'Light'
@@ -57,7 +57,7 @@ function Chart({ valueData, cashData }) {
         ["close", "CASH", "#FF5722", 2], // symbol, color, line width
         null,
         {
-          "Compare.style": 1, // Line style (1 = line)
+          "Compare.style": 1, 
           "Plot.linewidth": 2
         }
       );
@@ -74,7 +74,7 @@ function Chart({ valueData, cashData }) {
   return (
     <div
       ref={chartContainerRef}
-      style={{ width: '100%', height: '500px' }}
+      style={{ width: '100%', height: '70vh' }}
     />
   );
 }
