@@ -1,22 +1,12 @@
 import { BarChart2, Layers, Settings, TrendingUp } from 'lucide-react';
 import Papa from 'papaparse';
 import React, { useEffect, useState } from 'react';
-import ChartComponent from './ChartComponent';
 import './Dashboard.css';
-import { TVChartContainer } from './TVChartContainer';
+import Chart from './Chart.jsx'
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [riskLevel, setRiskLevel] = useState('medium');
-  const [modelMetrics, setModelMetrics] = useState({
-    accuracy: 78.5,
-    sharpeRatio: 2.14,
-    sortino: 2.68,
-    maxDrawdown: -12.4,
-    totalReturn: 24.8,
-    annualReturn: 631.97,
-    longestDDDays: 112
-  });
 
   {/* File Parsing */}
   const [csvData, setCsvData] = useState(null);
@@ -375,51 +365,6 @@ const Dashboard = () => {
                       ))}
                     </tbody>
                   </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'performance' && (
-            <div className="tab-content">
-              <h2 className="section-title">Model Performance</h2>
-              <div className="performance-grid">
-                <div className="card chart-card">
-                  <h3 className="chart-title">Cumulative Returns</h3>
-                  <div className="chart-wrapper">
-                    <ChartComponent data={testData} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="card">
-                <h3 className="chart-title">Performance Metrics</h3>
-                <div className="metrics-grid smaller">
-                  <div className="metric-card">
-                    <h4 className="metric-label">Accuracy</h4>
-                    <p className="metric-value">{modelMetrics.accuracy}%</p>
-                  </div>
-                  <div className="metric-card">
-                    <h4 className="metric-label">Sharpe Ratio</h4>
-                    <p className="metric-value">{modelMetrics.sharpeRatio}</p>
-                  </div>
-                  <div className="metric-card">
-                    <h4 className="metric-label">Sortino Ratio</h4>
-                    <p className="metric-value">{modelMetrics.sortino}</p>
-                  </div>
-                  <div className="metric-card">
-                    <h4 className="metric-label">Max Drawdown</h4>
-                    <p className="metric-value negative">{modelMetrics.maxDrawdown}%</p>
-                  </div>
-                  <div className="metric-card">
-                    <h4 className="metric-label">Annual Return</h4>
-                    <p className="metric-value positive">{modelMetrics.annualReturn}%</p>
-                  </div>
-                  <div className="metric-card">
-                    <h4 className="metric-label">Longest DD Days</h4>
-                    <p className="metric-value positive">{modelMetrics.longestDDDays}%</p>
-                  </div>
-                  
                 </div>
               </div>
             </div>

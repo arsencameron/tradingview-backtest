@@ -44,7 +44,7 @@ export class Datafeed {
       name: symbolName,
       ticker: symbolName,
       description: symbolName === 'PORTFOLIO_VALUE' ? 'Portfolio Value' : 'Cash Balance',
-      exchange: "PLTR",
+      exchange: "TEST",
       session: '24x7',
       timezone: 'Etc/UTC',
       pricescale: 100,
@@ -54,8 +54,8 @@ export class Datafeed {
       supported_resolutions: this.supportedResolutions,
       volume_precision: 0,
       data_status: 'streaming',
-      type: 'line', // This helps indicate it's a line chart
-      format: 'price' // Display as price format
+      type: 'line', 
+      format: 'price' 
     };
     
     console.log('[resolveSymbol]: Symbol resolved', symbolName);
