@@ -240,7 +240,9 @@ const Dashboard = () => {
                   <TVChartContainer valueData={csvData.valueData} cashData={csvData.cashData} />
                 )} */}
                 {csvData && csvData.valueData && csvData.cashData && (
-                  <Chart valueData={csvData.valueData} cashData={csvData.cashData} />
+                  <Chart valueData={csvData.valueData} cashData={csvData.cashData} signalData={[
+                    { time: '2025-01-15', price: 105.25, action: 'BUY' },
+                    { time: '2025-02-10', price: 112.75, action: 'SELL' }]}/>
                 )}
               </div>
             </div>

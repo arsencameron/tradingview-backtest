@@ -1,10 +1,11 @@
 export class Datafeed {
-  constructor(valueData, cashData) {
+  constructor(valueData, cashData, signalData) {
     this.dataMap = {
       PORTFOLIO_VALUE: valueData, // array of { time, value }
       CASH: cashData,             // array of { time, value }
     };
     
+    this.signalData = signalData || [];
     this.supportedResolutions = ['1D'];
   }
 
@@ -12,6 +13,7 @@ export class Datafeed {
     console.log('[onReady]: Method call');
     setTimeout(() => callback({
       supported_resolutions: this.supportedResolutions,
+      supports_marks: true,
     }));
   }
 
@@ -111,5 +113,31 @@ export class Datafeed {
   unsubscribeBars(subscriberUID) {
     console.log('[unsubscribeBars]: Method call with subscriberUID:', subscriberUID);
     // Implement if you need real-time updates
+  }
+
+  // Your existing getMarks method is already correct
+  getMarks(symbolInfo, from, to, onDataCallback, resolution) {
+    if (!this.signalData || this.signalData.length === 0) {
+      onDataCallback([]);
+      return;
+    }
+
+    const marks = this.signalData
+      .filter(signal => {
+        const time = new Date(signal.time).getTime();
+        return time >= from * 1000 && time <= to * 1000;
+      })
+      .map(signal => ({
+        id: signal.id || Math.random().toString(),
+        imageUrl: signal.action === 'BUY' ? "/src/assets/indicators/sell-indicator.png" : "/src/assets/indicators/buy-indicator.png",
+        time: new Date(signal.time).getTime() / 1000, // Convert to seconds
+        color: signal.action === 'BUY' ? 'red' : 'green',
+        text: signal.action === 'BUY' ? 'BUY' : 'SELL',
+        label: signal.action === 'BUY' ? 'B' : 'S',
+        labelFontColor: '#FFFFFF',
+        minSize: 30,
+      }));
+
+    onDataCallback(marks);
   }
 }
