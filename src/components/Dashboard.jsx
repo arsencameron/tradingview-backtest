@@ -1,8 +1,54 @@
 import { BarChart2, Layers, Settings, TrendingUp } from 'lucide-react';
 import Papa from 'papaparse';
 import React, { useEffect, useState } from 'react';
+import Chart from './Chart.jsx';
 import './Dashboard.css';
-import Chart from './Chart.jsx'
+
+
+function calculateStdDev(data){
+  let n = data.length;
+  if (n === 0) return 0; // Avoid division by zero
+  let mean = data.reduce((sum, value) => sum + value, 0) / n;
+  let squaredDiffs = data.map(value => Math.pow(value - mean, 2));
+  let variance = squaredDiffs.reduce((sum, value) => sum + value, 0) / n;
+  return Math.sqrt(variance);
+}
+
+function calculateDownStdDev(returns, riskFreeRate = 0) {
+  let n = returns.length;
+  if (n === 0) return 0;
+
+  let downsideSquaredDiffs = returns
+      .filter(r => r < riskFreeRate) // Only consider returns below the risk-free rate
+      .map(r => Math.pow(r - riskFreeRate, 2));
+
+  let downsideVariance = downsideSquaredDiffs.reduce((sum, value) => sum + value, 0) / n;
+  return Math.sqrt(downsideVariance);
+}
+
+function calculateSharpeRatio(returns, riskFreeRate = 0) {
+  let n = returns.length;
+  if (n === 0) return 0; 
+
+  let meanReturn = returns.reduce((sum, value) => sum + value, 0) / n;
+  let stdDev = calculateStdDev(returns); // Use your stdDev function
+  console.log("Sharpe Real: " + (meanReturn - riskFreeRate) / stdDev);
+  console.log("stdDevMean: " + meanReturn);
+  console.log("stdDev: " + stdDev);
+  return (meanReturn - riskFreeRate) / stdDev;
+}
+
+function calculateSortinoRatio (returns, riskFreeRate = 0) {
+  let n = returns.length;
+  if (n === 0) return 0; 
+
+  let meanReturn = returns.reduce((sum, value) => sum + value, 0) / n;
+  let stdDev = calculateDownStdDev(returns, riskFreeRate); // Use your stdDev function
+  console.log("Sortino Real: " + (meanReturn - riskFreeRate) / stdDev);
+  return (meanReturn - riskFreeRate) / stdDev;
+
+  }
+
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -12,6 +58,9 @@ const Dashboard = () => {
   const [csvData, setCsvData] = useState(null);
   const [totalReturn, setTotalReturn] = useState(0);
   const [annualReturn, setAnnualReturn] = useState(0);
+  const [maxDrawdown, setMaxDrawdown] = useState(0);
+  const [sortinoRatio, setSortinoRatio] = useState(0);
+  const [sharpeRatio, setSharpeRatio] = useState(0);
 
 
   {/* Tearsheet Data Display */}
@@ -33,22 +82,13 @@ const Dashboard = () => {
   const getClassByValue = (value) => {
     // Ensure the value is a string and handle cases where it's a number or undefined
     const stringValue = value ? value.toString() : '';
-  
-    // Remove commas and percentage sign if present
     const numericValue = parseFloat(stringValue.replace(',', '').replace('%', ''));
-  
-    // Return the appropriate class based on the numeric value
     return numericValue >= 0 ? 'positive' : 'negative';
   };
-  
-  const calculateCAGR = (initialValue, finalValue, initialTimestamp, finalTimestamp) => {
-    const years = (finalTimestamp - initialTimestamp) / (365 * 24 * 60 * 60 * 1000);
-  
-    const cagr = ((finalValue / initialValue) ** (1 / years) - 1) * 100;
-  
-    return cagr.toFixed(2);  // Return as percentage with 2 decimal places
-  };
 
+
+  //Stores all value and cash data
+  //Also computes total return, CAGR, and max drawdown
   const handleCsvFileRead = () => {
     const filePath = '../../data/BullCallSpreadPLTR_2025-02-10_19-32_jQXFGf_stats.csv'; 
   
@@ -59,34 +99,57 @@ const Dashboard = () => {
           complete: (result) => {
             const valueData = [];
             const cashData = [];
+            let returnData = result.data.map(row => Number(row.return)).filter(val => val !== "" && val != null && !isNaN(val));
+            let sharpe = calculateSharpeRatio(returnData);
+            let sortino = calculateSortinoRatio(returnData);
+
+            setSortinoRatio(sortino);
+            setSharpeRatio(sharpe);
+            
             
             // Initialize initial and final values
             let initialValue = null;
             let finalValue = null;
             let initialTimestamp = null;
             let finalTimestamp = null;
+            let prevValue = 0;
+            let currentMaxDrawdown = 0;
     
             result.data.forEach((row, index) => {
               const timestamp = new Date(row['datetime']).getTime() / 1000; // Convert to Unix timestamp
               const portfolioValue = parseFloat(row['portfolio_value']);
   
-              if (!isNaN(portfolioValue)) {
+              if (!isNaN(portfolioValue)) {                
                 // Set initial value (first entry)
                 if (index === 0) {
                   initialValue = portfolioValue;
                   initialTimestamp = timestamp;
+                }
+                else{
+                  //Right now finalValue is NOT updated
+                  prevValue = finalValue;
                 }
   
                 // Update final value (last entry)
                 finalValue = portfolioValue;
                 finalTimestamp = timestamp;
 
+                if(index != 0){
+                  if((finalValue - prevValue)/prevValue < currentMaxDrawdown){
+                    currentMaxDrawdown = (finalValue - prevValue)/prevValue;
+                  }
+                }
+
                 // You can still store the data for further usage like graphs
                 valueData.push({ time: timestamp, value: portfolioValue });
                 cashData.push({ time: timestamp, value: parseFloat(row['cash'] || 0) });
               }
             });
-  
+            const formattedMaxDrawdown = new Intl.NumberFormat().format((currentMaxDrawdown*100).toFixed(2)) + '%';
+            setMaxDrawdown(formattedMaxDrawdown);
+            console.log("Max drawdown: " + maxDrawdown);
+
+
             if (initialValue !== null && finalValue !== null) {
               const rawTotalReturn = (((finalValue - initialValue) / initialValue) * 100).toFixed(0);
               // Format with comma and percentage sign
@@ -104,6 +167,9 @@ const Dashboard = () => {
                 console.error('Invalid date values');
                 return;
               }
+
+              //Get all the calculated data
+              //Display more on performance page
 
               // Ensure that the final date is after the initial date
               if (initialDate >= finalDate) {
@@ -135,7 +201,6 @@ const Dashboard = () => {
   
             // Set the CSV data
             setCsvData({ valueData, cashData });
-            console.log('Total Return:', totalReturn);
           },
           header: true,
           skipEmptyLines: true,
@@ -225,6 +290,33 @@ const Dashboard = () => {
                 <div className="metric-value">
                   <p className={`annual-return ${getClassByValue(totalReturn)}`}>
                     Strategy: {annualReturn}
+                  </p>
+                </div>
+              </div>
+
+              <div className="metric-card">
+                <h3 className="metric-label">Max Drawdown:</h3>
+                <div className="metric-value">
+                  <p className={`max-drawdown ${getClassByValue(maxDrawdown)}`}>
+                    Strategy: {maxDrawdown}
+                  </p>
+                </div>
+              </div>
+
+              <div className="metric-card">
+                <h3 className="metric-label">Sortino Ratio:</h3>
+                <div className="metric-value">
+                  <p className={`max-drawdown ${getClassByValue(sortinoRatio)}`}>
+                    Strategy: {sortinoRatio.toFixed(3)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="metric-card">
+                <h3 className="metric-label">Sharpe Ratio:</h3>
+                <div className="metric-value">
+                  <p className={`max-drawdown ${getClassByValue(sharpeRatio)}`}>
+                    Strategy: {sharpeRatio.toFixed(3)}
                   </p>
                 </div>
               </div>
