@@ -14,6 +14,7 @@ export class Datafeed {
     setTimeout(() => callback({
       supported_resolutions: this.supportedResolutions,
       supports_marks: true,
+      supports_timescale_marks: true
     }));
   }
 
@@ -116,28 +117,165 @@ export class Datafeed {
   }
 
   // Your existing getMarks method is already correct
-  getMarks(symbolInfo, from, to, onDataCallback, resolution) {
+  // getMarks(symbolInfo, from, to, onDataCallback, resolution) {
+
+  //   if (!this.signalData || this.signalData.length === 0) {
+  //     console.warn('No signal data available');
+  //     onDataCallback([]);
+  //     return;
+  //   }
+  
+  //   const marks = this.signalData
+  //     .filter(signal => {
+  //       const isWithinTimeRange = signal.time >= from && signal.time <= to;
+  //       console.log(`Signal ${signal.id || 'unknown'} time check:`, {
+  //         signalTime: signal.time,
+  //         from,
+  //         to,
+  //         isWithinRange: isWithinTimeRange
+  //       });
+  //       return isWithinTimeRange;
+  //     })
+  //     .map(signal => {
+  //       // Handle trade signals
+  //       if (signal.type === 'trade') {
+  //         console.log('Processing trade signal:', signal);
+  //         const tradeMark = {
+  //           imageUrl: signal.side === 'buy' ? "/src/assets/indicators/sell-indicator.png" : "/src/assets/indicators/buy-indicator.png",
+  //           id: signal.id || Math.random().toString(),
+  //           time: signal.time, 
+  //           color: signal.side === 'buy' ? 'red' : 'green',
+  //           labelFontColor: '#FFFFFF',
+  //           minSize: 30,
+  //           point: { time: signal.time, price: 0 },
+  //           // Detailed hover text
+  //           text: `
+  //             Trade:
+  //             - Side: ${signal.side.toUpperCase()}
+  //             - Symbol: ${signal.symbol || 'N/A'}
+  //             - Price: $${signal.price.toFixed(2)}
+  //             - Strategy: ${signal.strategy || 'N/A'}
+              
+  //             Trade Specifics:
+  //             - Quantity: ${signal.tradeDetails?.tradeQuantity || 'N/A'}
+  //             - Trade Cost: $${signal.tradeDetails?.tradeCost?.toFixed(2) || 'N/A'}
+              
+  //             ${signal.assetType === 'option' && signal.optionDetails ? `Option Details:
+  //               - Expiration: ${signal.optionDetails.expiration || 'N/A'}
+  //               - Multiplier: ${signal.optionDetails.multiplier || 'N/A'}` : ''}
+  //           `,
+  //           label: signal.side === 'buy' ? 'B' : 'S',
+  //         };
+  //         console.log('Created trade mark:', tradeMark);
+  //         return tradeMark;
+  //       }
+        
+  //       // Handle indicator signals
+  //       if (signal.type === 'indicator') {
+  //         console.log('Processing indicator signal:', signal);
+  //         const indicatorMark = {
+  //           id: signal.id || Math.random().toString(),
+  //           time: signal.time,
+  //           color: signal.color || 'blue',
+  //           labelFontColor: '#FFFFFF',
+  //           minSize: 30,
+  //           // Detailed hover text
+  //           text: `
+  //             Indicator:
+  //             - Name: ${signal.name}
+  //             - Value: ${signal.value}
+  //             - Color: ${signal.color || 'Default'}
+  //             - Symbol: ${signal.symbol || 'N/A'}
+              
+  //             Additional Info:
+  //             - Detail Text: ${signal.detail_text || 'N/A'}
+  //           `,
+  //           label: signal.symbol || 'I',
+  //         };
+  //         console.log('Created indicator mark:', indicatorMark);
+  //         return indicatorMark;
+  //       }
+        
+  //       // Fallback for unknown signal types
+  //       console.warn('Unknown signal type:', signal);
+  //       return null;
+  //     })
+  //     .filter(mark => mark !== null); // Remove any null entries
+  
+  //   console.log(`Filtered marks count: ${marks.length}`);
+  //   console.log('Marks:', marks);
+  
+  //   onDataCallback(marks);
+  // }
+
+  getTimescaleMarks = (
+    symbolInfo,
+    startDate,
+    endDate,
+    onDataCallback,
+    resolution
+  ) => {
     if (!this.signalData || this.signalData.length === 0) {
+      console.warn('[getTimescaleMarks] No signal data available');
       onDataCallback([]);
       return;
     }
-
     const marks = this.signalData
-      .filter(signal => {
-        const time = new Date(signal.time).getTime();
-        return time >= from * 1000 && time <= to * 1000;
+      .map(signal => {
+        // Handle trade signals
+        if (signal.type === 'trade') {
+          return {
+            id: signal.identifier || Math.random().toString(),
+            imageUrl: signal.side === 'buy' ? "/src/assets/indicators/sell-indicator.png" : "/src/assets/indicators/buy-indicator.png",
+            time: signal.time,
+            color: signal.side === 'buy' ? 'red' : 'green',
+            label: signal.side === 'buy' ? 'B' : 'S',
+            minSize: 30,
+            tooltip: [
+              `Side: ${signal.side.toUpperCase()}`,
+              `Symbol: ${signal.symbol || 'N/A'}`,
+              `Price: $${signal.price.toFixed(2)}`,
+              `Strategy: ${signal.strategy || 'N/A'}`,
+              `Quantity: ${signal.tradeDetails?.tradeQuantity || 'N/A'}`,
+              `Trade Cost: $${signal.tradeDetails?.tradeCost?.toFixed(2) || 'N/A'}`,
+              ...(signal.assetType === 'option' && signal.optionDetails 
+                ? [
+                  `Expiration: ${signal.optionDetails.expiration || 'N/A'}`,
+                  `Multiplier: ${signal.optionDetails.multiplier || 'N/A'}`
+                ]
+                : [])
+            ]
+          };
+        }
+        
+        // Handle indicator signals
+        if (signal.type === 'indicator') {
+          return {
+            id: Math.random().toString(),
+            time: signal.time,
+            color: signal.color || 'blue',
+            shape: signal.symbol,
+            label: 'I',
+            minSize: 30,
+            tooltip: [
+              `Name: ${signal.name}`,
+              `Value: ${signal.value}`,
+              `Color: ${signal.color || 'Default'}`,
+              `Symbol: ${signal.symbol || 'N/A'}`,
+              `Detail Text: ${signal.detail_text || 'N/A'}`
+            ]
+          };
+        }
+        
+        // Fallback for unknown signal types
+        console.warn('Unknown signal type:', signal);
+        return null;
       })
-      .map(signal => ({
-        id: signal.id || Math.random().toString(),
-        imageUrl: signal.action === 'BUY' ? "/src/assets/indicators/sell-indicator.png" : "/src/assets/indicators/buy-indicator.png",
-        time: new Date(signal.time).getTime() / 1000, // Convert to seconds
-        color: signal.action === 'BUY' ? 'red' : 'green',
-        text: signal.action === 'BUY' ? 'BUY' : 'SELL',
-        label: signal.action === 'BUY' ? 'B' : 'S',
-        labelFontColor: '#FFFFFF',
-        minSize: 30,
-      }));
-
+      .filter(mark => mark !== null); // Remove any null entries
+  
+    console.log(`Filtered marks count: ${marks.length}`);
+    console.log('Marks:', marks);
+  
     onDataCallback(marks);
-  }
+  };
 }

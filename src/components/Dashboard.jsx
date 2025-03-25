@@ -55,7 +55,8 @@ const Dashboard = () => {
   const [riskLevel, setRiskLevel] = useState('medium');
 
   {/* File Parsing */}
-  const [csvData, setCsvData] = useState(null);
+  const [statsData, setStatsData] = useState(null);
+  const [markersData, setMarkersData] = useState(null);
   const [totalReturn, setTotalReturn] = useState(0);
   const [annualReturn, setAnnualReturn] = useState(0);
   const [maxDrawdown, setMaxDrawdown] = useState(0);
@@ -67,7 +68,8 @@ const Dashboard = () => {
   const [tearsheetData, setTearsheetData]  = useState([]);
 
   useEffect(() => {
-    handleCsvFileRead();
+    parseStats();
+    parseMarkers();
     fetch('/tearsheet_data.json')  
       .then((response) => response.json())
       .then((tearsheetData) => {
@@ -89,8 +91,8 @@ const Dashboard = () => {
 
   //Stores all value and cash data
   //Also computes total return, CAGR, and max drawdown
-  const handleCsvFileRead = () => {
-    const filePath = '../../data/BullCallSpreadPLTR_2025-02-10_19-32_jQXFGf_stats.csv'; 
+  const parseStats = () => {
+    const filePath = '../../data/stats.csv'; 
   
     fetch(filePath)
       .then((response) => response.text())
@@ -200,7 +202,7 @@ const Dashboard = () => {
             cashData.sort((a, b) => a.time - b.time);
   
             // Set the CSV data
-            setCsvData({ valueData, cashData });
+            setStatsData({ valueData, cashData });
           },
           header: true,
           skipEmptyLines: true,
@@ -211,6 +213,120 @@ const Dashboard = () => {
       });
   };
   
+  const parseMarkers = () => {
+    Promise.all([
+      new Promise((resolve, reject) => {
+        Papa.parse('../../data/indicators.csv', {
+          download: true,
+          header: true,
+          skipEmptyLines: true,
+          complete: (result) => resolve(result.data),
+          error: (err) => reject(err)
+        });
+      }),
+      new Promise((resolve, reject) => {
+        Papa.parse('../../data/option_trades.csv', {
+          download: true,
+          header: true,
+          skipEmptyLines: true,
+          complete: (result) => resolve(result.data),
+          error: (err) => reject(err)
+        });
+      })
+    ]).then(([indicatorData, tradeData]) => {
+      // Process Indicators
+      const indicators = indicatorData.reduce((acc, row) => {
+        try {
+          const time = Math.floor(parseFloat(row.timestamp));
+          const value = parseFloat(row.value);
+  
+          if (!isNaN(time) && !isNaN(value)) {
+            acc.push({
+              type: 'indicator',
+              time,
+              value,
+              name: row.name,
+              detail_text: row.detail_text,
+              color: row.color,
+              symbol: row.symbol
+            });
+          }
+        } catch (error) {
+          console.error('Error processing indicator:', row, error);
+        }
+        return acc;
+      }, []);
+  
+      const trades = tradeData.reduce((acc, row) => {
+        try {
+          const time = Math.floor(new Date(row.time).getTime() / 1000);
+          const price = parseFloat(row.price);
+          const side = row.side;
+          const status = row.status;
+          const assetType = row['asset.asset_type'];
+          console.log("asset Type" + assetType)
+      
+          // Expanded validation to include more scenarios
+          const isValidTrade = 
+            time && 
+            !isNaN(time) && 
+            !isNaN(price) && 
+            (side === 'buy' || side === 'sell') &&
+            (status === 'fill' || status === 'open'); // Allow both filled and open trades
+      
+          if (isValidTrade) {
+            // Base trade object
+            const tradeEntry = {
+              type: 'trade',
+              time,
+              price,
+              side,
+              status,
+              symbol: row.symbol,
+              strategy: row.strategy,
+              assetType, // Include asset type explicitly
+              tradeDetails: {
+                identifier: row.identifier,
+                timeInForce: row['time_in_force'],
+                tradeQuantity: parseFloat(row['filled_quantity']),
+                tradeCost: parseFloat(row['trade_cost'])
+              }
+            };
+      
+            switch (assetType) {
+              case 'option':
+                tradeEntry.optionDetails = row['asset.right'] ? {
+                  multiplier: parseFloat(row['asset.multiplier']),
+                  expiration: row['asset.expiration'],
+                } : null;
+                break;
+              default:
+                // Log unknown asset types for debugging
+                console.warn('Unknown asset type:', assetType, row);
+            }
+      
+            acc.push(tradeEntry);
+          }
+        } catch (error) {
+          console.error('Error processing trade:', row, error);
+        }
+        return acc;
+      }, []);
+  
+      // Combine and sort markers
+      const combinedMarkers = [...indicators, ...trades]
+        .sort((a, b) => a.time - b.time);
+  
+      console.log('Combined Markers:', combinedMarkers);
+      
+      // Set the combined markers data
+      setMarkersData(combinedMarkers);
+    }).catch(error => {
+      console.error('Error parsing CSV files:', error);
+    });
+  };
+
+
   return (
     <div className="dashboard-container">
       {/* Header */}
@@ -280,7 +396,7 @@ const Dashboard = () => {
                 <h3 className="metric-label">Total Return:</h3>
                 <div className="metric-value">
                   <p className={`total-return-value ${getClassByValue(totalReturn)}`}>
-                    Strategy: {totalReturn}
+                    {totalReturn}
                   </p>
                 </div>
               </div>
@@ -289,7 +405,7 @@ const Dashboard = () => {
                 <h3 className="metric-label">CAGR Annual Return:</h3>
                 <div className="metric-value">
                   <p className={`annual-return ${getClassByValue(totalReturn)}`}>
-                    Strategy: {annualReturn}
+                    {annualReturn}
                   </p>
                 </div>
               </div>
@@ -298,7 +414,7 @@ const Dashboard = () => {
                 <h3 className="metric-label">Max Drawdown:</h3>
                 <div className="metric-value">
                   <p className={`max-drawdown ${getClassByValue(maxDrawdown)}`}>
-                    Strategy: {maxDrawdown}
+                    {maxDrawdown}
                   </p>
                 </div>
               </div>
@@ -307,7 +423,7 @@ const Dashboard = () => {
                 <h3 className="metric-label">Sortino Ratio:</h3>
                 <div className="metric-value">
                   <p className={`max-drawdown ${getClassByValue(sortinoRatio)}`}>
-                    Strategy: {sortinoRatio.toFixed(3)}
+                    {sortinoRatio.toFixed(3)}
                   </p>
                 </div>
               </div>
@@ -316,7 +432,7 @@ const Dashboard = () => {
                 <h3 className="metric-label">Sharpe Ratio:</h3>
                 <div className="metric-value">
                   <p className={`max-drawdown ${getClassByValue(sharpeRatio)}`}>
-                    Strategy: {sharpeRatio.toFixed(3)}
+                    {sharpeRatio.toFixed(3)}
                   </p>
                 </div>
               </div>
@@ -326,15 +442,14 @@ const Dashboard = () => {
 
               {/* Performance chart */}
               <div>        
-                {/* {csvData && <ChartComponent valueData={csvData.valueData} cashData={csvData.cashData} />} */}
-                {/* {csvData && <Chart valueData={csvData.valueData} cashData={csvData.cashData} />} */}
-                {/* {csvData && csvData.valueData && csvData.cashData && (
-                  <TVChartContainer valueData={csvData.valueData} cashData={csvData.cashData} />
-                )} */}
-                {csvData && csvData.valueData && csvData.cashData && (
-                  <Chart valueData={csvData.valueData} cashData={csvData.cashData} signalData={[
+                {/* {statsData && statsData.valueData && statsData.cashData && (
+                  <Chart valueData={statsData.valueData} cashData={statsData.cashData} signalData={[
                     { time: '2025-01-15', price: 105.25, action: 'BUY' },
                     { time: '2025-02-10', price: 112.75, action: 'SELL' }]}/>
+                )} */}
+
+                {statsData && statsData.valueData && statsData.cashData && (
+                  <Chart valueData={statsData.valueData} cashData={statsData.cashData} signalData={markersData}/>
                 )}
               </div>
             </div>
