@@ -116,7 +116,6 @@ export class Datafeed {
     // Implement if you need real-time updates
   }
 
-  // Your existing getMarks method is already correct
   // getMarks(symbolInfo, from, to, onDataCallback, resolution) {
 
   //   if (!this.signalData || this.signalData.length === 0) {
@@ -141,11 +140,11 @@ export class Datafeed {
   //       if (signal.type === 'trade') {
   //         console.log('Processing trade signal:', signal);
   //         const tradeMark = {
-  //           imageUrl: signal.side === 'buy' ? "/src/assets/indicators/sell-indicator.png" : "/src/assets/indicators/buy-indicator.png",
+  //           imageUrl: signal.side === 'buy' ? "/src/assets/indicators/buy-indicator.png" : "/src/assets/indicators/sell-indicator.png",
   //           id: signal.id || Math.random().toString(),
+  //           label: '',
   //           time: signal.time, 
-  //           color: signal.side === 'buy' ? 'red' : 'green',
-  //           labelFontColor: '#FFFFFF',
+  //           color: signal.side === 'buy' ? 'green' : 'red',
   //           minSize: 30,
   //           point: { time: signal.time, price: 0 },
   //           // Detailed hover text
@@ -174,10 +173,10 @@ export class Datafeed {
   //       if (signal.type === 'indicator') {
   //         console.log('Processing indicator signal:', signal);
   //         const indicatorMark = {
-  //           id: signal.id || Math.random().toString(),
+  //           id: signal.id,
   //           time: signal.time,
+  //           label: ' ',
   //           color: signal.color || 'blue',
-  //           labelFontColor: '#FFFFFF',
   //           minSize: 30,
   //           // Detailed hover text
   //           text: `
@@ -186,11 +185,7 @@ export class Datafeed {
   //             - Value: ${signal.value}
   //             - Color: ${signal.color || 'Default'}
   //             - Symbol: ${signal.symbol || 'N/A'}
-              
-  //             Additional Info:
-  //             - Detail Text: ${signal.detail_text || 'N/A'}
   //           `,
-  //           label: signal.symbol || 'I',
   //         };
   //         console.log('Created indicator mark:', indicatorMark);
   //         return indicatorMark;
@@ -226,9 +221,9 @@ export class Datafeed {
         if (signal.type === 'trade') {
           return {
             id: signal.identifier || Math.random().toString(),
-            imageUrl: signal.side === 'buy' ? "/src/assets/indicators/sell-indicator.png" : "/src/assets/indicators/buy-indicator.png",
+            imageUrl: signal.side === 'buy' ? "/src/assets/indicators/buy-indicator.png" : "/src/assets/indicators/sell-indicator.png",
             time: signal.time,
-            color: signal.side === 'buy' ? 'red' : 'green',
+            color: signal.side === 'buy' ? 'green' : 'red',
             label: signal.side === 'buy' ? 'B' : 'S',
             minSize: 30,
             tooltip: [
@@ -255,16 +250,15 @@ export class Datafeed {
             time: signal.time,
             color: signal.color || 'blue',
             shape: signal.symbol,
-            label: 'I',
+            label: ' ',
             minSize: 30,
             tooltip: [
               `ID: ${signal.id}`,
               `Name: ${signal.name}`,
               `Size: ${signal.size || 'N/A'}`,
               `Value: ${signal.value}`,
-              // `Color: ${signal.color || 'Default'}`,
-              // `Symbol: ${signal.symbol || 'N/A'}`,
-              `${signal.detail_text || 'N/A'}`
+              `Color: ${signal.color || 'Default'}`,
+              `Symbol: ${signal.symbol || 'N/A'}`,
             ]
           };
         }

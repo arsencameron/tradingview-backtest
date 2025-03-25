@@ -3,6 +3,7 @@ import Papa from 'papaparse';
 import React, { useEffect, useState } from 'react';
 import Chart from './Chart.jsx';
 import './Dashboard.css';
+import logo from "../assets/logo.png";
 
 
 function calculateStdDev(data){
@@ -225,7 +226,7 @@ const Dashboard = () => {
         });
       }),
       new Promise((resolve, reject) => {
-        Papa.parse('../../data/option_trades.csv', {
+        Papa.parse('../../data/stock_trades.csv', {
           download: true,
           header: true,
           skipEmptyLines: true,
@@ -334,6 +335,7 @@ const Dashboard = () => {
       {/* Header */}
       <header className="dashboard-header">
         <div className="header-left">
+          <img src={logo} alt="" className="logo"/>
           <h1 className="header-title">Backtesting Dashboard</h1>
         </div>
       </header>
