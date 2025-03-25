@@ -251,18 +251,20 @@ export class Datafeed {
         // Handle indicator signals
         if (signal.type === 'indicator') {
           return {
-            id: Math.random().toString(),
+            id: signal.id,
             time: signal.time,
             color: signal.color || 'blue',
             shape: signal.symbol,
             label: 'I',
             minSize: 30,
             tooltip: [
+              `ID: ${signal.id}`,
               `Name: ${signal.name}`,
+              `Size: ${signal.size || 'N/A'}`,
               `Value: ${signal.value}`,
-              `Color: ${signal.color || 'Default'}`,
-              `Symbol: ${signal.symbol || 'N/A'}`,
-              `Detail Text: ${signal.detail_text || 'N/A'}`
+              // `Color: ${signal.color || 'Default'}`,
+              // `Symbol: ${signal.symbol || 'N/A'}`,
+              `${signal.detail_text || 'N/A'}`
             ]
           };
         }

@@ -242,8 +242,10 @@ const Dashboard = () => {
   
           if (!isNaN(time) && !isNaN(value)) {
             acc.push({
+              id: row[''],
               type: 'indicator',
               time,
+              size: row.size,
               value,
               name: row.name,
               detail_text: row.detail_text,
