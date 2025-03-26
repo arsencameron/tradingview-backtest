@@ -227,6 +227,7 @@ export class Datafeed {
             label: signal.side === 'buy' ? 'B' : 'S',
             minSize: 30,
             tooltip: [
+              `${signal.assetType.toUpperCase()}`,
               `Side: ${signal.side.toUpperCase()}`,
               `Symbol: ${signal.symbol || 'N/A'}`,
               `Price: $${signal.price.toFixed(2)}`,
@@ -236,7 +237,7 @@ export class Datafeed {
               ...(signal.assetType === 'option' && signal.optionDetails 
                 ? [
                   `Expiration: ${signal.optionDetails.expiration || 'N/A'}`,
-                  `Multiplier: ${signal.optionDetails.multiplier || 'N/A'}`
+                  `Strike: ${signal.optionDetails.strike || 'N/A'}`
                 ]
                 : [])
             ]

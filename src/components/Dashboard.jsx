@@ -226,7 +226,7 @@ const Dashboard = () => {
         });
       }),
       new Promise((resolve, reject) => {
-        Papa.parse('../../data/stock_trades.csv', {
+        Papa.parse('../../data/option_trades.csv', {
           download: true,
           header: true,
           skipEmptyLines: true,
@@ -299,8 +299,8 @@ const Dashboard = () => {
             switch (assetType) {
               case 'option':
                 tradeEntry.optionDetails = row['asset.right'] ? {
-                  multiplier: parseFloat(row['asset.multiplier']),
                   expiration: row['asset.expiration'],
+                  strike: row['asset.strike']
                 } : null;
                 break;
               default:
